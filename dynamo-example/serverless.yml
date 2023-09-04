@@ -1,0 +1,56 @@
+service: serverless-example
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  profile: zocom-christoffer
+  region: eu-north-1
+  iam:
+    role: arn:aws:iam::497180550327:role/lecture-role
+
+plugins:
+  - serverless-webpack
+
+package:
+  individually: true
+
+functions:
+  getInsult:
+    handler: functions/getInsult/index.handler
+    events:
+      - httpApi:
+          path: '/api/insults'
+          method: GET
+  postInsult:
+    handler: functions/postInsult/index.handler
+    events:
+      - httpApi:
+          path: '/api/insults'
+          method: POST
+  updateInsult:
+    handler: functions/updateInsult/index.handler
+    events:
+      - httpApi:
+          path: '/api/insults/{insultId}'
+          method: POST
+  deleteInsult:
+    handler: functions/deleteInsult/index.handler
+    events:
+      - httpApi:
+          path: '/api/insults/{insultId}'
+          method: DELETE
+
+resources:
+  Resources:
+    insultsDb:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: insults-db
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
